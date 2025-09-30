@@ -1,21 +1,23 @@
+import random
+
+
 def main():
     grid_size: int = 10
 
     robots_name: str = (input("Please provide the robots name: "))
     robots_id: int = int(input("please provide the robots ID: "))
-    robots_row_coord: int = int(input("Please provide the robots row coordinate: "))
-    robots_col_coord: int = int(input("Please provide the robots col coordinate: "))
 
-    robots_direction: str = (input(
-        "Please provide the robots direction using one of 4 letters: 'w', 'e', 's', 'n': "
-        ))
+    robots_row_coord: int = random.randint(0, grid_size)
+    robots_col_coord: int = random.randint(0, grid_size)
 
-    letter_to_direction = {'w': 'west',
-                           'e': 'east',
-                           'n': 'north',
-                           's': 'south'}
+    robots_direction: str = random.choice(["west", "east", "north", "south"])
 
-    robots_direction = letter_to_direction[robots_direction]
+    # letter_to_direction = {'w': 'west',
+    #                        'e': 'east',
+    #                        'n': 'north',
+    #                        's': 'south'}
+    #
+    # robots_direction = letter_to_direction[robots_direction]
 
     robots_row_coord, robots_col_coord = normalise_coords(robots_row_coord, robots_col_coord, grid_size)
     robots_coord_quadrant = get_robots_coord_quadrant(robots_row_coord, robots_col_coord, grid_size)
