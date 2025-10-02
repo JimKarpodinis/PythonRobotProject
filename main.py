@@ -1,58 +1,64 @@
 import random
 
-
 def main():
-    grid_size: int = 10
+	grid_size: int = 10
 
-    robots_name: str = (input("Please provide the robots name: "))
-    robots_id: int = int(input("please provide the robots ID: "))
+	robots_name: str = (input("Please provide the robots name: "))
+	robots_id: int = int(input("please provide the robots ID: "))
 
-    robots_row_coord: int = random.randint(0, grid_size)
-    robots_col_coord: int = random.randint(0, grid_size)
+	row_coord: int = random.randint(0, grid_size)
+	col_coord: int = random.randint(0, grid_size)
 
-    robots_direction: str = random.choice(["west", "east", "north", "south"])
+	direction: str = random.choice(["west", "east", "north", "south"])
 
-    # letter_to_direction = {'w': 'west',
-    #                        'e': 'east',
-    #                        'n': 'north',
-    #                        's': 'south'}
-    #
-    # robots_direction = letter_to_direction[robots_direction]
+	row_coord, col_coord = normalise_coords(row_coord, col_coord, grid_size)
+	coord_quadrant = get_robots_coord_quadrant(row_coord, col_coord, grid_size)
 
-    robots_row_coord, robots_col_coord = normalise_coords(robots_row_coord, robots_col_coord, grid_size)
-    robots_coord_quadrant = get_robots_coord_quadrant(robots_row_coord, robots_col_coord, grid_size)
+	print_init_message(robots_name, robots_id, row_coord,
+			  col_coord, coord_quadrant, direction)
+	
+	update_robot_position(row_coord, col_coord, grid_size, direction)
+	
+	
 
-    message = get_message(robots_name, robots_id, robots_row_coord,
-                          robots_col_coord, robots_coord_quadrant, robots_direction)
+def update_robot_position(row_coord: int, col_coord: int, grid_size: int, direction: str):
+	
+	while not is_border(row_coord, col_coord, grid_size):
 
-    print(message)
+		print_update_message(False)
+		row_coord, col_coord = move_robot(row_coord, col_coord, direction) 
+		print_position_message(row_coord, col_coord, direction)
 
-
-def normalise_coords(robots_row_coord: int, robots_col_coord: int, grid_size: int):
+	
+	print_update_message(True)
 		
 
-	robots_row_coord = 0 if robots_row_coord < 0 else robots_row_coord
-	robots_col_coord = 0 if robots_col_coord < 0 else robots_col_coord
 
-	robots_row_coord = grid_size -1 if robots_row_coord > grid_size -1 else robots_row_coord
-	robots_col_coord = grid_size -1 if robots_col_coord > grid_size -1 else robots_col_coord
+def normalise_coords(row_coord: int, col_coord: int, grid_size: int):
+		
+
+	row_coord = 0 if row_coord < 0 else row_coord
+	col_coord = 0 if col_coord < 0 else col_coord
+
+	row_coord = grid_size -1 if row_coord > grid_size -1 else row_coord
+	col_coord = grid_size -1 if col_coord > grid_size -1 else col_coord
 
 
-	return robots_row_coord, robots_col_coord
+	return row_coord, col_coord
 
 
 
-def get_robots_coord_quadrant(robots_row_coord: int, robots_col_coord: int, grid_size: int):
+def get_robots_coord_quadrant(row_coord: int, col_coord: int, grid_size: int):
 
 	quadrant_border = grid_size // 2
 		
-	if robots_row_coord > robots_col_coord:
+	if row_coord > col_coord:
 		hor_quadrant = "left"
 
 	else:
 		hor_quadrant = "right"
 
-	if robots_row_coord > quadrant_border:
+	if row_coord > quadrant_border:
 		vert_quadrant = "Bottom"
 
 	else:
@@ -60,21 +66,55 @@ def get_robots_coord_quadrant(robots_row_coord: int, robots_col_coord: int, grid
 		vert_quadrant = "Top"
 
 
-	robots_coord_quadrant = " ".join([vert_quadrant, hor_quadrant])
+	coord_quadrant = " ".join([vert_quadrant, hor_quadrant])
+
+	return coord_quadrant
 
 
-	return robots_coord_quadrant
+def move_robot(row_coord: int, col_coord: int, direction: str) -> tuple:
+	
+	move_direction = {"east": (0,-1), "west": (0,1), "north": (-1,0), "south": (1,0)}
+
+	
+	current_position =  (row_coord, col_coord)
+
+	updated_position = tuple(map(sum, zip(
+		current_position, move_direction[direction])))
+	
+	breakpoint()
+	return updated_position[0], updated_position[1]
 
 
-def get_message(name: str, robots_id: int,  robots_row_coord: int, robots_col_coord: int, robots_coord_quadrant, robots_direction: str):
+def is_border(row_coord: int, col_coord: int, grid_size) -> bool:
+	
+	is_down_border = (row_coord == (grid_size -1) or (col_coord == (grid_size -1)))
 
-    message = f"\n Robot's name is {name}. Robot's Id is: {robots_id}\n\n"
-    message += f"Robot's coordinates are: \n Robots row coordinate: {robots_row_coord}. Robots col coordinate: {robots_col_coord} \n\n"
-    message += f"Robot's coordinate quadrant is: {robots_coord_quadrant} \n\n"
+	is_upper_border = ((row_coord == 0) or (col_coord == 0)) 
 
-    message += f"Robot is facing {robots_direction}"
+	is_border = is_upper_border or is_down_border
+	return is_border
+		
+	
+def print_position_message(row_coord: int, col_coord: int, direction: str):
 
-    return message
+	print(f"I am curently at {(row_coord,col_coord)}, facing {direction}")
+
+
+def print_update_message(is_border: bool):
+	
+	if not is_border:
+		print("Moving one step forward.")
+	else:
+		print("I have a wall in front of me !")
+
+
+def print_init_message(name: str, robots_id: int,  row_coord: int, col_coord: int, coord_quadrant, direction: str):
+
+	message = f"\n Robot's name is {name}. Robot's Id is: {robots_id}\n\n"
+	message += f"Robot's coordinate quadrant is: {coord_quadrant} \n\n"
+
+	print(message)
+	print_position_message(row_coord, col_coord, direction)
 
 
 if __name__ == "__main__":
